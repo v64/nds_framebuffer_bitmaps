@@ -1,5 +1,12 @@
 #include <nds.h>
 
+#define DRAW128(vid, x, y, color) ({\
+    vid[(y*2) * 256 + (x*2)] = color;\
+    vid[(y*2) * 256 + (x*2+1)] = color;\
+    vid[(y*2+1) * 256 + (x*2)] = color;\
+    vid[(y*2+1) * 256 + (x*2+1)] = color;\
+})
+
 int main(void) {
     int x, y;
 
@@ -18,22 +25,15 @@ int main(void) {
     u16* videoMemoryMain = bgGetGfxPtr(bgMain);
     u16* videoMemorySub = bgGetGfxPtr(bgSub);
 
-    //initialize it with a color
-    for(x = 0; x < 256; x+=2) {
-        for(y = 0; y < 256; y+=2) {
-            videoMemoryMain[y * 256 + x]         = ARGB16(1, 31, x % 32, y % 32);
-            videoMemoryMain[y * 256 + (x+1)]     = ARGB16(1, 31, x % 32, y % 32);
-            videoMemoryMain[(y+1) * 256 + x]     = ARGB16(1, 31, x % 32, y % 32);
-            videoMemoryMain[(y+1) * 256 + (x+1)] = ARGB16(1, 31, x % 32, y % 32);
-
-            videoMemorySub[y * 256 + x]         = ARGB16(1, x % 32, 31, y % 32);
-            videoMemorySub[y * 256 + (x+1)]     = ARGB16(1, x % 32, 31, y % 32);
-            videoMemorySub[(y+1) * 256 + x]     = ARGB16(1, x % 32, 31, y % 32);
-            videoMemorySub[(y+1) * 256 + (x+1)] = ARGB16(1, x % 32, 31, y % 32);
+    while (1) {
+        for (x = 0; x < 128; x++) {
+            for (y = 0; y < 128; y++) {
+                int time = rand();
+                DRAW128(videoMemoryMain, x, y, ARGB16(1, 31, (x*2*time) % 32, (y*2) % 32));
+                DRAW128(videoMemorySub, x, y, ARGB16(1, (x*2) % 32, 31, (y*2*time) % 32));
+            }
         }
-    }
 
-    while(1) {
         swiWaitForVBlank();
     }
 }
