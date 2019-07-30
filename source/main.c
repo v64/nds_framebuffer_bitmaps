@@ -8,8 +8,6 @@
 })
 
 int main(void) {
-    int x, y;
-
     //set the mode to allow for an extended rotation background
     videoSetMode(MODE_5_2D);
     videoSetModeSub(MODE_5_2D);
@@ -25,12 +23,42 @@ int main(void) {
     u16* videoMemoryMain = bgGetGfxPtr(bgMain);
     u16* videoMemorySub = bgGetGfxPtr(bgSub);
 
-    while (1) {
+    int x, y;
+    int gradx = 0;
+    int grady = 0;
+    int step = 0;
+
+    for (;;) {
+        step++;
+
+        scanKeys();
+
+        uint32 keys = keysHeld();
+
+        if (keys & KEY_UP) {
+            gradx++;
+            gradx = gradx % 256;
+        }
+
+        if (keys & KEY_DOWN) {
+            gradx--;
+            gradx = gradx % 256;
+        }
+
+        if (keys & KEY_LEFT) {
+            grady++;
+            grady = grady % 256;
+        }
+
+        if (keys & KEY_RIGHT) {
+            grady--;
+            grady = grady % 256;
+        }
+
         for (x = 0; x < 128; x++) {
             for (y = 0; y < 128; y++) {
-                int time = rand();
-                DRAW128(videoMemoryMain, x, y, ARGB16(1, 31, (x*2*time) % 32, (y*2) % 32));
-                DRAW128(videoMemorySub, x, y, ARGB16(1, (x*2) % 32, 31, (y*2*time) % 32));
+                DRAW128(videoMemoryMain, x, y, ARGB16(1, step % 32, gradx % 32, grady % 32));
+                DRAW128(videoMemorySub, x, y, ARGB16(1, gradx % 32, grady % 32, step % 32));
             }
         }
 
