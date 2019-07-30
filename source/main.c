@@ -26,13 +26,14 @@ int main(void) {
     int x, y;
     int gradx = 0;
     int grady = 0;
-    int time = 0;
+    //int time = 0;
     int step = 0;
 
     for (;;) {
         // Update state
-        time++;
-        if (time % 3 == 0) step++;
+        //time++;
+        //if (time % 3 == 0) step++;
+        step++;
 
         scanKeys();
         uint32 keys = keysHeld();
