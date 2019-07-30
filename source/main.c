@@ -1,10 +1,7 @@
 #include <nds.h>
 
 #define DRAW128(vid, x, y, color) ({\
-    vid[(x<<1) + (y<<9)] = color;\
-    vid[(x<<1) + (y<<9) + 1] = color;\
-    vid[(x<<1) + (y<<9) + 256] = color;\
-    vid[(x<<1) + (y<<9) + 257] = color;\
+    vid[(y<<8) + x + 8256] = (color);\
 })
 
 int main(void) {
