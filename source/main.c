@@ -19,10 +19,17 @@ int main(void) {
     u16* videoMemorySub = bgGetGfxPtr(bgSub);
 
     //initialize it with a color
-    for(x = 0; x < 256; x++) {
-        for(y = 0; y < 256; y++) {
-            videoMemoryMain[x + y * 256] = ARGB16(1, 31, 0, 0);
-            videoMemorySub[x + y * 256] = ARGB16(1, 0, 0, 31);
+    for(x = 0; x < 256; x+=2) {
+        for(y = 0; y < 256; y+=2) {
+            videoMemoryMain[y * 256 + x]         = ARGB16(1, 31, x % 32, y % 32);
+            videoMemoryMain[y * 256 + (x+1)]     = ARGB16(1, 31, x % 32, y % 32);
+            videoMemoryMain[(y+1) * 256 + x]     = ARGB16(1, 31, x % 32, y % 32);
+            videoMemoryMain[(y+1) * 256 + (x+1)] = ARGB16(1, 31, x % 32, y % 32);
+
+            videoMemorySub[y * 256 + x]         = ARGB16(1, x % 32, 31, y % 32);
+            videoMemorySub[y * 256 + (x+1)]     = ARGB16(1, x % 32, 31, y % 32);
+            videoMemorySub[(y+1) * 256 + x]     = ARGB16(1, x % 32, 31, y % 32);
+            videoMemorySub[(y+1) * 256 + (x+1)] = ARGB16(1, x % 32, 31, y % 32);
         }
     }
 
