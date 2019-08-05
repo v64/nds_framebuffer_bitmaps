@@ -1,7 +1,14 @@
 #include <nds.h>
 
+#define SCR_WIDTH 256
+#define SCR_HEIGHT 192
+
 #define DRAW128(vid, x, y, color) ({\
     vid[(y<<8) + x + 8256] = (color);\
+})
+
+#define DRAW(vid, x, y, color) ({\
+    vid[y * SCR_WIDTH + x] = (color);\
 })
 
 int main(void) {
@@ -23,31 +30,29 @@ int main(void) {
     int x, y;
     int gradx = 0;
     int grady = 0;
-    //int time = 0;
-    int step = 0;
+    int redraw = 1;
 
     for (;;) {
-        // Update state
-        //time++;
-        //if (time % 3 == 0) step++;
-        step++;
-
         scanKeys();
         uint32 keys = keysHeld();
-        if (keys & KEY_UP) gradx++;
-        if (keys & KEY_DOWN) gradx--;
-        if (keys & KEY_LEFT) grady++;
-        if (keys & KEY_RIGHT) grady--;
+        if (keys & KEY_UP)    { gradx++; redraw = 1; }
+        if (keys & KEY_DOWN)  { gradx--; redraw = 1; }
+        if (keys & KEY_LEFT)  { grady++; redraw = 1; }
+        if (keys & KEY_RIGHT) { grady--; redraw = 1; }
 
         // Wait for vblank
         swiWaitForVBlank();
 
         // Draw
-        for (x = 0; x < 128; x++) {
-            for (y = 0; y < 128; y++) {
-                DRAW128(videoMemoryMain, x, y, ARGB16(1, step+x, gradx+x, gradx));
-                DRAW128(videoMemorySub, x, y, ARGB16(1, step+y, grady+x, grady));
+        if (redraw) {
+            for (x = 0; x < SCR_WIDTH; x++) {
+                for (y = 0; y < SCR_HEIGHT; y++) {
+                    DRAW(videoMemoryMain, x, y, ARGB16(1, gradx*y+x, x, grady));
+                    DRAW(videoMemorySub, x, y, ARGB16(1, grady*x+y, gradx, y));
+                }
             }
+
+            redraw = 0;
         }
     }
 }
