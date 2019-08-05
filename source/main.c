@@ -30,15 +30,28 @@ int main(void) {
     int x, y;
     int gradx = 0;
     int grady = 0;
+    int coordx = 0;
+    int coordy = 0;
     int redraw = 1;
+    int touched = 0;
+    touchPosition touch;
 
     for (;;) {
         scanKeys();
         uint32 keys = keysHeld();
+        touchRead(&touch);
+
         if (keys & KEY_UP)    { gradx++; redraw = 1; }
         if (keys & KEY_DOWN)  { gradx--; redraw = 1; }
         if (keys & KEY_LEFT)  { grady++; redraw = 1; }
         if (keys & KEY_RIGHT) { grady--; redraw = 1; }
+
+        if (keys & KEY_TOUCH) {
+            coordx = touch.px;
+            coordy = touch.py;
+            redraw = 1;
+            touched = 1;
+        }
 
         // Wait for vblank
         swiWaitForVBlank();
@@ -47,8 +60,13 @@ int main(void) {
         if (redraw) {
             for (x = 0; x < SCR_WIDTH; x++) {
                 for (y = 0; y < SCR_HEIGHT; y++) {
-                    DRAW(videoMemoryMain, x, y, ARGB16(1, gradx*y+x, x, grady));
-                    DRAW(videoMemorySub, x, y, ARGB16(1, grady*x+y, gradx, y));
+                    if (touched && abs(x - coordx) + abs(y - coordy) <= 35) {
+                        DRAW(videoMemoryMain, x, y, ARGB16(1, coordx*y+x, x, coordy));
+                        DRAW(videoMemorySub, x, y, ARGB16(1, coordy*x+y, coordx, y));
+                    } else {
+                        DRAW(videoMemoryMain, x, y, ARGB16(1, gradx*y+x, x, grady));
+                        DRAW(videoMemorySub, x, y, ARGB16(1, grady*x+y, y, gradx));
+                    }
                 }
             }
 
