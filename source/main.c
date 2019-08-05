@@ -34,6 +34,7 @@ int main(void) {
     int coordy = 0;
     int redraw = 1;
     int touched = 0;
+    int autochg = 0;
     touchPosition touch;
 
     for (;;) {
@@ -51,6 +52,20 @@ int main(void) {
             coordy = touch.py;
             redraw = 1;
             touched = 1;
+        }
+
+        if (keys & KEY_A) { autochg = 1; }
+        if (keys & KEY_B) { autochg = 0; }
+
+        if (autochg) {
+            if (autochg == 2) {
+                gradx++;
+                grady--;
+                autochg = 1;
+                redraw = 1;
+            } else {
+                autochg++;
+            }
         }
 
         // Wait for vblank
