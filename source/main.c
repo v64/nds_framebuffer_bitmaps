@@ -2,6 +2,7 @@
 
 #define SCR_WIDTH 256
 #define SCR_HEIGHT 192
+#define FX_CONST 100
 
 #define DRAW128(vid, x, y, color) ({\
     vid[(y<<8) + x + 8256] = (color);\
@@ -30,8 +31,8 @@ int main(void) {
     int x, y;
     int gradx = 0;
     int grady = 0;
-    int coordx = 0;
-    int coordy = 0;
+    int coordx = SCR_WIDTH / 2;
+    int coordy = SCR_HEIGHT / 2;
     int redraw = 1;
     int touched = 0;
     int autochg = 0;
@@ -58,14 +59,16 @@ int main(void) {
         if (keys & KEY_B) { autochg = 0; }
 
         if (autochg) {
-            if (autochg == 2) {
+            if (autochg % FX_CONST < FX_CONST/2) {
                 gradx++;
                 grady--;
-                autochg = 1;
-                redraw = 1;
             } else {
-                autochg++;
+                gradx--;
+                grady++;
             }
+
+            autochg++;
+            redraw = 1;
         }
 
         // Wait for vblank
@@ -75,9 +78,10 @@ int main(void) {
         if (redraw) {
             for (x = 0; x < SCR_WIDTH; x++) {
                 for (y = 0; y < SCR_HEIGHT; y++) {
-                    if (touched && abs(x - coordx) + abs(y - coordy) <= 35) {
-                        DRAW(videoMemoryMain, x, y, ARGB16(1, coordx*y+x, x, coordy));
-                        DRAW(videoMemorySub, x, y, ARGB16(1, coordy*x+y, coordx, y));
+                    int dist = abs(x - coordx) + abs(y - coordy);
+                    if (touched && dist <= (autochg>0?autochg:(FX_CONST/3)) % FX_CONST) {
+                        DRAW(videoMemoryMain, x, y, ARGB16(1, x, dist, y));
+                        DRAW(videoMemorySub, x, y, ARGB16(1, y, dist, x));
                     } else {
                         DRAW(videoMemoryMain, x, y, ARGB16(1, gradx*y+x, x, grady));
                         DRAW(videoMemorySub, x, y, ARGB16(1, grady*x+y, y, gradx));
